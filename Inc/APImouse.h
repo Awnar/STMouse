@@ -8,7 +8,7 @@
 #ifndef APIMOUSE_H_
 #define APIMOUSE_H_
 
-#include "usb_device.h"
+//#include "usb_device.h"
 
 	extern USBD_HandleTypeDef hUsbDeviceFS;
 
@@ -19,16 +19,16 @@
 		int8_t wheel;
 	} mouseHID;
 
-			void APImouse(){
-				mouseHID.buttons = 0;
+			void mouse_clear(){
 				mouseHID.x = 0;
 				mouseHID.y = 0;
 				mouseHID.wheel = 0;
 			}
 
-			void send(){
+			void mouse_send(){
 				USBD_HID_SendReport(&hUsbDeviceFS, &mouseHID, sizeof(struct mouseHID_t));
-				HAL_Delay(1000);
+				mouse_clear();
+				HAL_Delay(100);
 			}
 
 #endif /* APIMOUSE_H_ */
