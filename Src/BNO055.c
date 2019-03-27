@@ -6,7 +6,7 @@
  */
 #include "BNO055.h"
 extern I2C_HandleTypeDef hi2c1;
-uint8_t mode = OPERATION_MODE_n;
+uint8_t mode = OPERATION_MODE_ACCGYRO;
 
 int8_t begin( void ){
 	/*
