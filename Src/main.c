@@ -62,8 +62,8 @@ static void MX_I2C1_Init(void);
 /* USER CODE BEGIN 0 */
 double x,y,z;
 double* tmp;
+double x1,y1,z1;
 double x2,y2,z2;
-double* tmp2;
 /* USER CODE END 0 */
 
 /**
@@ -101,8 +101,7 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   begin();
-  tmp=calloc(3,sizeof(double));
-  tmp2=calloc(3,sizeof(double));
+  tmp=calloc(4,sizeof(double));
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,13 +111,54 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  getVector(VECTOR_LINEARACCEL,tmp);
+	  if(tmp[0]<2000)// && tmp[0]>1)
+		  x=tmp[0];
+	  else x=0;
+	  if(tmp[1]<2000)// && tmp[1]>1)
+		  y=tmp[1];
+	  else y=0;
+	  if(tmp[2]<2000)// && tmp[2]>1)
+		 z=tmp[2];
+	  else z=0;
+
+	  getVector(VECTOR_ACCELEROMETER,tmp);
+	  if(tmp[0]<200)
+		  x1=tmp[0];
+	  if(tmp[1]<200)
+		  y1=tmp[1];
+	  if(tmp[2]<200)
+		  z1=tmp[2];
+
+	  getVector(VECTOR_EULER,tmp);
+	  if(tmp[0]<400)
+  		  x2=tmp[0];
+  	  if(tmp[1]<400)
+  		  y2=tmp[1];
+  	  if(tmp[2]<400)
+  		  z2=tmp[2];
+
+  	  if (x>1 || x<-1)
+  	  mouseHID.x=(int)x/10;
+  	  if (y>1 || y<-1)
+  	  mouseHID.y=(int)y/10;
+	  mouse_send();
+
+	  	  /*
 		x = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER);
 		y = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER+2);
 		z = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER+4);
-		x2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE);
-		y2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+2);
-		z2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+4);
-		//mouse_send();
+		if(x<30000)
+			mouseHID.y = x/20;
+		if(y<30000)
+			mouseHID.x = y/20;
+		//x2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE);
+		//y2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+2);
+		//z2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+4);
+		mouseHID.y*=-1;
+		mouseHID.x*=-1;
+		mouse_send();
+*/
   }
   /* USER CODE END 3 */
 }

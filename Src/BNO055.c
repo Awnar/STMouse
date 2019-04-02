@@ -6,7 +6,7 @@
  */
 #include "BNO055.h"
 extern I2C_HandleTypeDef hi2c1;
-uint8_t mode = OPERATION_MODE_ACCGYRO;
+uint8_t mode = OPERATION_MODE_IMUPLUS;
 
 int8_t begin( void ){
 	/*
@@ -21,10 +21,6 @@ int8_t begin( void ){
 			return -1;  // still not? ok bail
 		}
 	}
-/*
-	//page 0 man str 51
-	I2C_write8(BNO055_ADDRESS_A, BNO055_PAGE_ID_ADDR, 0);
-	HAL_Delay(20);
 	//tryb konfiguracji
 	setMode(OPERATION_MODE_CONFIG);
 	//reset i ooczekuj a¿ wstanie
@@ -33,15 +29,27 @@ int8_t begin( void ){
 		HAL_Delay(20);
 	}
 	HAL_Delay(20);
-	 Set to normal power mode
+	// Set to normal power mode
 	I2C_write8(BNO055_ADDRESS_A, BNO055_PWR_MODE_ADDR, POWER_MODE_NORMAL);
 	HAL_Delay(10);
 	//clear
 	I2C_write8(BNO055_ADDRESS_A, BNO055_SYS_TRIGGER_ADDR, 0x0);
-	HAL_Delay(20);
-	 Set the requested operating mode (see section 3.3)
-	//ustaw domyœlny mode dla API IMU
-*/
+	HAL_Delay(10);
+
+	I2C_write8(BNO055_ADDRESS_A, BNO055_PAGE_ID_ADDR, 1);
+	HAL_Delay(10);
+
+	//conf acc; page 1; range +-2; bandwith 1000Hz; normal
+	I2C_write8(BNO055_ADDRESS_A, 0x08, 0b00011100);
+	HAL_Delay(10);
+
+	//conf gyro; page 1; range 125dps; bandwith 523Hz;
+	I2C_write8(BNO055_ADDRESS_A, 0b00000100, 0);
+	HAL_Delay(10);
+
+	I2C_write8(BNO055_ADDRESS_A, BNO055_PAGE_ID_ADDR, 0);
+	HAL_Delay(10);
+
 	setMode(mode);
 	HAL_Delay(20);
 	return 0;
@@ -184,13 +192,9 @@ void getVector(uint8_t vector_type, double* xyz){
 	x = y = z = 0;
 
 	/* Read vector data (6 bytes) */
-	HAL_Delay(20);
 	x = I2C_read16(BNO055_ADDRESS_A, vector_type);
-	HAL_Delay(20);
 	y = I2C_read16(BNO055_ADDRESS_A, vector_type+2);
-	HAL_Delay(20);
 	z = I2C_read16(BNO055_ADDRESS_A, vector_type+4);
-	HAL_Delay(20);
 
 	switch(vector_type){
     	case VECTOR_MAGNETOMETER:
