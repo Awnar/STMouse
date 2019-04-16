@@ -177,8 +177,8 @@ void getSystemStatus(uint8_t *system_status, uint8_t *self_test_result, uint8_t 
 	HAL_Delay(200);
 }
 
-void getVector(uint8_t vector_type, double* xyz){
-	/*
+/*void getVector(uint8_t vector_type, double* xyz){
+
 	 * xyz = The address of xyz data array ( double xyz[3] )
 	 * vector types:
 	 * VECTOR_ACCELEROMETER
@@ -187,30 +187,30 @@ void getVector(uint8_t vector_type, double* xyz){
 	 * VECTOR_EULER
 	 * VECTOR_LINEARACCEL
 	 * VECTOR_GRAVITY
-	 */
+
 	int16_t x, y, z;
 	x = y = z = 0;
 
-	/* Read vector data (6 bytes) */
+	 Read vector data (6 bytes)
 	x = I2C_read16(BNO055_ADDRESS_A, vector_type);
 	y = I2C_read16(BNO055_ADDRESS_A, vector_type+2);
 	z = I2C_read16(BNO055_ADDRESS_A, vector_type+4);
 
 	switch(vector_type){
     	case VECTOR_MAGNETOMETER:
-    		/* 1uT = 16 LSB */
+    		 1uT = 16 LSB
     		xyz[0] = ((double)x)/16.0;
     		xyz[1] = ((double)y)/16.0;
     		xyz[2] = ((double)z)/16.0;
     		break;
     	case VECTOR_GYROSCOPE:
-    		/* 1dps = 16 LSB */
+    		 1dps = 16 LSB
     		xyz[0] = ((double)x)/16.0;
     		xyz[1] = ((double)y)/16.0;
     		xyz[2] = ((double)z)/16.0;
     		break;
     	case VECTOR_EULER:
-    		/* 1 degree = 16 LSB */
+    		 1 degree = 16 LSB
     		xyz[0] = ((double)x)/16.0;
     		xyz[1] = ((double)y)/16.0;
     		xyz[2] = ((double)z)/16.0;
@@ -218,12 +218,20 @@ void getVector(uint8_t vector_type, double* xyz){
 		case VECTOR_ACCELEROMETER:
 		case VECTOR_LINEARACCEL:
 		case VECTOR_GRAVITY:
-			/* 1m/s^2 = 100 LSB */
+			 1m/s^2 = 100 LSB
 			xyz[0] = ((double)x)/100.0;
 			xyz[1] = ((double)y)/100.0;
 			xyz[2] = ((double)z)/100.0;
 			break;
 	}
+}*/
+
+void getVector(uint8_t vector_type, int* xyz){
+	int16_t x, y, z;
+	x = y = z = 0;
+	xyz[0] = I2C_read16(BNO055_ADDRESS_A, vector_type);
+	xyz[1] = I2C_read16(BNO055_ADDRESS_A, vector_type+2);
+	xyz[2] = I2C_read16(BNO055_ADDRESS_A, vector_type+4);
 }
 /*
  * UNDER CONSTRUCTION!!!
@@ -249,8 +257,8 @@ int8_t I2C_read8(uint8_t slave, uint8_t address){
 	 */
 	slave = slave<<1;
 	uint8_t val=0;
-	HAL_I2C_Master_Transmit(&hi2c1, slave, &address, 1, 100 );
-	HAL_Delay(20);
+	//HAL_I2C_Master_Transmit(&hi2c1, slave, &address, 1, 100 );
+	//HAL_Delay(20);
 	HAL_I2C_Master_Receive(&hi2c1,slave,(uint8_t *)&val, 1, 100);
 	return val;
 }
@@ -283,8 +291,8 @@ int16_t I2C_read16(uint8_t slave, uint8_t address){
 	 */
 	slave = slave<<1;
 	int16_t val=0;
-	HAL_I2C_Master_Transmit(&hi2c1, slave, &address, 1, 100 );
-	HAL_Delay(20);
+	//HAL_I2C_Master_Transmit(&hi2c1, slave, &address, 1, 100 );
+	//HAL_Delay(20);
 	HAL_I2C_Master_Receive(&hi2c1,slave, (uint8_t *)&val, 2, 100);
 	return val;
 }

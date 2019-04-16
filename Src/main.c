@@ -60,10 +60,10 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-double x,y,z;
-double* tmp;
-double x1,y1,z1;
-double x2,y2,z2;
+int x,y,z;
+int* tmp;
+int x1,y1,z1;
+int x2,y2,z2;
 /* USER CODE END 0 */
 
 /**
@@ -139,9 +139,9 @@ int main(void)
   		  z2=tmp[2];
 
   	  if (x>1 || x<-1)
-  	  mouseHID.x=(int)x/10;
+  	  mouseHID.x=x/10;
   	  if (y>1 || y<-1)
-  	  mouseHID.y=(int)y/10;
+  	  mouseHID.y=y/10;
 	  mouse_send();
 
 	  	  /*
