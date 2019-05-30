@@ -60,10 +60,11 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int x,y,z;
-int* tmp;
-int x1,y1,z1;
-int x2,y2,z2;
+int16_t x,y,z;
+double* tmp;
+uint8_t flag =0;
+//int x1,y1,z1;
+//int x2,y2,z2;
 /* USER CODE END 0 */
 
 /**
@@ -74,9 +75,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	mouseHID.buttons=0;
-	mouseHID.x=0;
-	mouseHID.y=0;
-	mouseHID.wheel=0;
+	mouse_clear();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -100,8 +99,12 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  begin();
-  tmp=calloc(4,sizeof(double));
+  begin();/*
+  if(begin()==0)
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
+  else
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);*/
+  tmp=calloc(4,sizeof(int16_t));
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,54 +114,58 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  getVector(VECTOR_LINEARACCEL,tmp);
-	  if(tmp[0]<2000)// && tmp[0]>1)
-		  x=tmp[0];
-	  else x=0;
-	  if(tmp[1]<2000)// && tmp[1]>1)
-		  y=tmp[1];
-	  else y=0;
-	  if(tmp[2]<2000)// && tmp[2]>1)
-		 z=tmp[2];
-	  else z=0;
+	  //if(flag==1){
 
-	  getVector(VECTOR_ACCELEROMETER,tmp);
-	  if(tmp[0]<200)
-		  x1=tmp[0];
-	  if(tmp[1]<200)
-		  y1=tmp[1];
-	  if(tmp[2]<200)
-		  z1=tmp[2];
+		  getVector(VECTOR_ACCELEROMETER,tmp);
+		  //if(tmp[0]<2000)// && tmp[0]>1)
+			  x=(int)tmp[0];
+		  //else x=0;
+		  //if(tmp[1]<2000)// && tmp[1]>1)
+			  y=(int)tmp[1];
+			  z=(int)tmp[2];
+		  //else y=0;
+		  /*if(tmp[2]<2000)// && tmp[2]>1)
+			 z=tmp[2];
+		  else z=0;
 
-	  getVector(VECTOR_EULER,tmp);
-	  if(tmp[0]<400)
-  		  x2=tmp[0];
-  	  if(tmp[1]<400)
-  		  y2=tmp[1];
-  	  if(tmp[2]<400)
-  		  z2=tmp[2];
+		  getVector(VECTOR_ACCELEROMETER,VECTOR_LINEARACCEL,tmp);
+		  if(tmp[0]<200)
+			  x1=tmp[0];
+		  if(tmp[1]<200)
+			  y1=tmp[1];
+		  if(tmp[2]<200)
+			  z1=tmp[2];
 
-  	  if (x>1 || x<-1)
-  	  mouseHID.x=x/10;
-  	  if (y>1 || y<-1)
-  	  mouseHID.y=y/10;
+		  getVector(VECTOR_EULER,tmp);
+		  if(tmp[0]<400)
+			  x2=tmp[0];
+		  if(tmp[1]<400)
+			  y2=tmp[1];
+		  if(tmp[2]<400)
+			  z2=tmp[2];*/
+
+		  //if (x>1 || x<-1)
+		  mouseHID.x=x/10;
+		  //if (y>1 || y<-1)
+		  mouseHID.y=y/10;
+
+			  /*
+			x = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER);
+			y = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER+2);
+			z = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER+4);
+			if(x<30000)
+				mouseHID.y = x/20;
+			if(y<30000)
+				mouseHID.x = y/20;
+			//x2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE);
+			//y2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+2);
+			//z2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+4);
+			mouseHID.y*=-1;
+			mouseHID.x*=-1;
+			mouse_send();
+	*/
+	  //}
 	  mouse_send();
-
-	  	  /*
-		x = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER);
-		y = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER+2);
-		z = I2C_read16(BNO055_ADDRESS_A, VECTOR_ACCELEROMETER+4);
-		if(x<30000)
-			mouseHID.y = x/20;
-		if(y<30000)
-			mouseHID.x = y/20;
-		//x2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE);
-		//y2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+2);
-		//z2 = I2C_read16(BNO055_ADDRESS_A, VECTOR_GYROSCOPE+4);
-		mouseHID.y*=-1;
-		mouseHID.x*=-1;
-		mouse_send();
-*/
   }
   /* USER CODE END 3 */
 }
@@ -251,20 +258,31 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /*Configure GPIO pins : PE7 PE8 PE9 PE10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PE9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PE11 PE12 */
-  GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+  /*Configure GPIO pins : PE10 PE11 PE12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD12 PD13 PD14 PD15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
@@ -278,19 +296,29 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-		if(GPIO_PIN_7==GPIO_Pin)
-			mouseHID.x+=10;
-		if(GPIO_PIN_8==GPIO_Pin)
-			mouseHID.x-=10;
-		if(GPIO_PIN_9==GPIO_Pin)
-			mouseHID.y+=10;
-		if(GPIO_PIN_10==GPIO_Pin)
-			mouseHID.y-=10;
+		//11 - LPM
+		//12 - PPM
+		//10 - ŒPM
+		//7 - ON/OF
+		///0 -> off
+		///1 -> on
 
-		if(GPIO_PIN_11==GPIO_Pin)
+		if(GPIO_PIN_9==GPIO_Pin){
+			flag ^= 1;
+			//resetBNO();
+			HAL_GPIO_TogglePin(GPIOD,GPIO_PIN_13);
+		}
+
+		//Lewy przycisk 0x01 | Prawy przycisk 0x02 | Srodkowy przycisk 0x04
+		if(GPIO_PIN_11==GPIO_Pin){
 			mouseHID.buttons^=1;
-		if(GPIO_PIN_12==GPIO_Pin)
+			HAL_GPIO_TogglePin(GPIOD,GPIO_PIN_15);}
+		if(GPIO_PIN_12==GPIO_Pin){
 			mouseHID.buttons^=2;
+			HAL_GPIO_TogglePin(GPIOD,GPIO_PIN_15);}
+		if(GPIO_PIN_10==GPIO_Pin){
+			mouseHID.buttons^=4;
+			HAL_GPIO_TogglePin(GPIOD,GPIO_PIN_15);}
 }
 /* USER CODE END 4 */
 

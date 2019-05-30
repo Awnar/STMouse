@@ -200,6 +200,7 @@ void getCalibration(uint8_t* sys, uint8_t* gyro, uint8_t* accel, uint8_t* mag);
 void getSystemStatus(uint8_t *system_status, uint8_t *self_test_result, uint8_t *system_error);
 void getCalibration(uint8_t* sys, uint8_t* gyro, uint8_t* accel, uint8_t* mag);
 void getVector(uint8_t vector_type, double* xyz);
+void resetBNO(void);
 
 
 #endif /* BNO055_H_ */
